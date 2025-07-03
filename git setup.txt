@@ -1,0 +1,54 @@
+--Git setup
+
+
+you need access to git repo 
+
+you need to clone it 
+
+open main branch in selected repo ---- click on CODE get url
+
+https://github.com/Shaikhmahammadnisar/Code_repo.git
+
+now create one folder for example cargo_repo
+
+go to in that folder and opne git bash
+
+run below commad 
+
+$git clone <put that url>
+git clone https://github.com/Shaikhmahammadnisar/Code_repo.git
+
+run below commad 
+cd repo_name 
+
+checkout to dev branch run below commad 
+
+
+$git checkout dev
+
+now do your changes /add new code file/update code file /folder
+
+$git status
+
+this will show you all the changes [those are not yet traked in branch]
+those change is still in your local laptop
+
+
+add those changes 
+
+$ git add . [ will add all the files ]
+$git add pathof that file 
+
+
+$git commit -m "give some message "
+
+finally say below commad 
+
+git push
+
+
+push your changes to server 
+
+-------------------------
+
+we need git pull to make our local branch up to date [sync] 
