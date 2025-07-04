@@ -1,4 +1,0 @@
-select city, avg(salary) from employees
-    -> group by city
-    -> having avg(salary) > 60000;
-
