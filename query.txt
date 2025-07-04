@@ -1,0 +1,75 @@
+			
+how to update in a table male with female and 
+all female with male
+
+UPDATE emp
+SET gender = CASE
+    WHEN gender = 'male' THEN 'female'
+    WHEN gender = 'female' THEN 'male'
+    ELSE gender
+END;
+
+
+query to give grade based on sal 
+
+select 
+CASE
+    WHEN sal <300 THEN 'Low paid'
+    WHEN sal >300 and sal<500 
+ THEN 'Mid Pay'
+    ELSE "high Paid" 
+END as Grade from emp;
+
+
+NULL -- its not empty or blank space 
+
+insert a value char in int 
+it will display as null;
+
+having is used bcz where clouse not support 
+agg function 
+
+but you cna use agg function in having 
+
+example
+
+---------duplicate record
+
+how to identify duplicate records in mysql 
+
+ select *,count(*) from emp group by id,name,gender,city,sal
+    having count(*) > 1;
+
+
+how to remove duplicate 
+
+WITH ranked AS (
+  SELECT id, 
+         ROW_NUMBER() OVER (PARTITION BY id ORDER BY id) AS rn
+  FROM emp
+)
+DELETE FROM emp
+WHERE id IN (
+    SELECT id FROM ranked WHERE rn > 1)
+
+
+solution using row_number 
+
+select * from
+   (
+   select id,name,gender,city,sal,row_number() over(partition by id,name,gender,city,sal order by  id) as rk from emp)
+     as x where x.rk=1;
+
+
+constraint in RDBMS/
+rule - 9 h comp/ 8.5 /half day
+
+PK -- rule / it can not have duplicate and not be null
+not null - another rule/constraint 
+it can have duplicate but cant be empty
+
+
+defaul constraint -- is use to set some 
+data time that is somthing sysment generated 
+
+example  - current_timestamp  
