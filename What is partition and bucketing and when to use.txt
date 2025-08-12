@@ -1,0 +1,104 @@
+*What is Partitioning vs Bucketing in Apache Hive? (Partitioning vs Bucketing)
+>Apache Hive is one of the popular data warehouses in distributed cluster environment. 
+Apache hive is used to store massive amounts of data and it can be processed in a fast,
+parallel, and efficient manner in HDFS (Hadoop Distributed File System) environment. 
+To improve access time of Hive queries, Hive tables can be stored in diverse ways. 
+Hive tables can be stored as partitions and bucketing.
+
+Hive is an excellent tool for performing queries on large datasets. 
+There are some instances where we want to filter the data on specific column values. 
+In such cases, partitioning and bucketing play a vital role in improving the query performance / access time in Hive. 
+We can improve query retrieval time using partitioning and bucketing appropriately. 
+
+At a conceptual level, partitioning is a technique to divide the large table (in hive warehouse) 
+into smaller tables based on the distinct values of a specified column 
+(one partition for each distinct values) whereas bucketing is a way to split the data based 
+on a hash function in a manageable table (user can specify how many buckets he/she wants). 
+
+*What is Partitioning in Hive table? 
+
+Partitioning is a technique of managing the data load horizontally into more manageable 
+way by diving data into directories and sub-directories. It allows us to categorize data in 
+more logical manner. In hive partition is of two types: 
+
+1)Static partition (managed by user): In Static Partitioning, you need to specify the 
+partition (the segment column) in which we want to load the data. In static partitioning, 
+the user takes care of everything from defining partitioning column to 
+loading data into the partition folders / directories. For example, run following 
+command to create static partition and load data:  
+
+> create table employees(id int, name string, branch string) partitioned by 
+(gpa float) row format delimited fields terminated by ',';
+
+>insert overwrite table employees partition (gpa = 7.0) select id,name, 
+branch from employees where gpa = 7.0;
+
+Now you can run the following query to fetch data from a specified partition. 
+So, rather than scanning entre data, the query will scan data from the partition 
+which meets the criteria set in the where clause. It will improve query execution time. 
+
+>select * from student_detail_static_part where gpa =7.0;
+
+2)Dynamic Partition (managed by Hive): In dynamic partitioning, the user is required to 
+just state the column name on which partition is to be created. 
+The hive will automatically create partition based on the unique values in the column on 
+which partition is defined while data load operation happens. In dynamic partitioning, 
+hive will control the partitioning operation and will figure out unique values in the partitioning column 
+and segregate data int the respective partitions. So, no user intervention is required in 
+dynamic partitioning. For example,
+
+>create table employees_detail_dynamic_partition(id int, name string, branch string) 
+partitioned by (gpa float) row format delimited fields terminated by ',';
+
+>set hive.exec.dynamic.partition = true;
+
+>set hive.exec.dynamic.partition.mode = nonstrict;
+
+>insert overwrite table student_detail_dynamic_partition partition(gpa) 
+select id, name, gpa from student_detail;
+
+So, you can see above, hive has created partitions based on the distinct values in the gpa column 
+and data is loaded in the respective sub-directories of student_detail_dynamic_partition directory.
+
+*What is bucketing in Hive?
+Bucketing is like partitioning with some differences. In bucketing, Hive splits the 
+data into a fixed number of buckets, according to a hash function over some set of columns. 
+Hive ensures that all rows that have the same hash will store in the same bucket. 
+However, a single bucket may contain multiple such groups. For example,
+
+> create table student_detail_bucket(id int, name string, branch string, gpa float) 
+clustered by (gpa) into 2 buckets;
+
+from student_detail insert overwrite table student_detail_bucket select id, name, branch, gpa;
+
+The above code will create two buckets (two sub-directories) under student_detail_bucket 
+directory and data are segmented in each sub-directory in accordance with hash function. See below,
+
+*When to use partitioning in Hive?
+When you have a smaller number of distinct values in a column (a column has low cardinality), 
+you should use partitioning. Partitioning (dynamic partitioning on the column) will 
+create the number of partitions (sub-directories) equivalent to number of distinct values 
+in the column. It will enhance query response time because the query will filter data from the 
+sub-directory which match in the where clause rather than scanning full table.
+
+If a column has high cardinality, too many partitions will create too many 
+sub-folders/sub-directories in a table folder/directory which will create overhead to NameNode. 
+Because NameNode keeps all metadata for the file system in memory. So, be cautious.
+
+*When to use bucketing in Hive?
+Partitioning is not recommended in case of a column has high cardinality because 
+too many partitions (sub-directories) will be created. In other words, in a case of a column has 
+high cardinality, bucketing is preferred. While you make bucketing in hive, you need to specify 
+the number of buckets to manage your data efficiently and hash function will put data 
+in the appropriate bucket. For example, the salary column in a table which has extremely high cardinality, 
+can be placed in 5 buckets using hash function.
+
+*Conclusion
+In the above discussion, it is clearly stated what is partitioning and what is bucketing. 
+Partitioning and bucketing are used to improve query execution time/ query optimization. 
+Partitioning is used in case of a column has low cardinality (a smaller number of distinct values in the column). 
+On the other hand, if a column has extremely high cardinality (a greater number of distinct values in the column) 
+go for bucketing.
+
+
+
